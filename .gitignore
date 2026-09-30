@@ -1,0 +1,7 @@
+# Candidate data is personal data - never commit it.
+data/
+*.db
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

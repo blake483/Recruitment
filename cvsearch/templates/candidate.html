@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ cand.name }} · CV Search{% endblock %}
+{% block content %}
+<p><a href="{{ back }}">← Back to results</a></p>
+<div class="cand">
+  <div class="cand-main">
+    <h1>{{ cand.name }}</h1>
+    {% if cand.current_role %}<p class="role">{{ cand.current_role }}</p>{% endif %}
+    {% if cand.error %}<div class="flash warn">⚠ {{ cand.error }}</div>{% endif %}
+
+    <dl class="facts">
+      <dt>Experience</dt>
+      <dd>{% if cand.years_experience is not none %}{{ cand.years_experience }} years
+          <span class="muted">({{ 'edited by you' if cand.overrides.years_experience else ('from dates on CV' if cand.years_source == 'dates' else 'as stated on CV') }}{% if cand.career_start %}, career start {{ cand.career_start }}{% endif %})</span>
+          {% else %}<span class="muted">couldn't be worked out — add it below</span>{% endif %}</dd>
+      <dt>Location</dt><dd>{{ cand.primary_location or '—' }}{% if cand.locations %} <span class="muted">(mentions: {{ cand.locations|join(', ') }})</span>{% endif %}</dd>
+      <dt>Sectors</dt><dd>{% for s in cand.sectors %}<span class="tag sector">{{ s }}</span>{% else %}—{% endfor %}</dd>
+      <dt>Roles mentioned</dt><dd>{{ cand.roles|join(', ') or '—' }}</dd>
+      <dt>Strategy</dt><dd>{{ cand.strategies|join(', ') or '—' }}</dd>
+      <dt>Firms</dt><dd>{{ cand.firms|join(' · ') or '—' }}</dd>
+      <dt>Background</dt><dd>{{ cand.firm_groups|join(', ') or '—' }}</dd>
+      <dt>Qualifications</dt><dd>{{ cand.qualifications|join(', ') or '—' }}</dd>
+      <dt>Email</dt><dd>{% if cand.email %}<a href="mailto:{{ cand.email }}">{{ cand.email }}</a>{% else %}—{% endif %}</dd>
+      <dt>Phone</dt><dd>{{ cand.phone or '—' }}</dd>
+      <dt>LinkedIn</dt><dd>{% if cand.linkedin %}<a href="{{ cand.linkedin if cand.linkedin.startswith('http') else 'https://' ~ cand.linkedin }}" target="_blank" rel="noopener">{{ cand.linkedin }}</a>{% else %}—{% endif %}</dd>
+      <dt>CV file</dt><dd><a href="{{ url_for('candidate_file', cid=cand.id) }}" target="_blank">Open</a> ·
+        <a href="{{ url_for('candidate_file', cid=cand.id, download=1) }}">Download</a>
+        <span class="muted">{{ cand.filename }} · added {{ cand.uploaded_at[:10] }}</span></dd>
+    </dl>
+
+    <h2>CV text</h2>
+    <pre class="cvtext">{{ cand.text | highlight(highlight) }}</pre>
+  </div>
+
+  <aside class="cand-side">
+    <form method="post" class="edit">
+      <h3>Notes &amp; corrections</h3>
+      <label>Notes (calls, comp, availability…)
+        <textarea name="notes" rows="6">{{ cand.notes }}</textarea></label>
+      <label>Name <input name="name" value="{{ cand.overrides.name or '' }}" placeholder="{{ cand.name }}"></label>
+      <label>Years of experience <input name="years_experience" type="number" step="0.5" value="{{ cand.overrides.years_experience if cand.overrides.years_experience is not none }}" placeholder="{{ cand.years_experience if cand.years_experience is not none else '?' }}"></label>
+      <label>Location
+        <select name="primary_location">
+          <option value="">{{ 'Auto: ' ~ (cand.primary_location or 'unknown') if not cand.overrides.primary_location else '(auto)' }}</option>
+          {% for l in taxonomy.LOCATIONS %}<option {% if cand.overrides.primary_location == l %}selected{% endif %}>{{ l }}</option>{% endfor %}
+        </select></label>
+      <label>Current role <input name="current_role" value="{{ cand.overrides.current_role or '' }}" placeholder="{{ cand.current_role }}"></label>
+      <label>Email <input name="email" value="{{ cand.overrides.email or '' }}" placeholder="{{ cand.email }}"></label>
+      <label>Phone <input name="phone" value="{{ cand.overrides.phone or '' }}" placeholder="{{ cand.phone }}"></label>
+      <div class="sub">Sectors</div>
+      {% for s in taxonomy.SECTORS %}
+        <label class="check"><input type="checkbox" name="sectors" value="{{ s }}" {% if s in cand.sectors %}checked{% endif %}> {{ s }}</label>
+      {% endfor %}
+      <button type="submit">Save</button>
+      <p class="muted small">Blank fields keep the automatically detected value.</p>
+    </form>
+    <form method="post" action="{{ url_for('candidate_delete', cid=cand.id) }}" onsubmit="return confirm('Delete this candidate and their CV file permanently?');">
+      <button type="submit" class="danger">Delete candidate</button>
+    </form>
+  </aside>
+</div>
+{% endblock %}

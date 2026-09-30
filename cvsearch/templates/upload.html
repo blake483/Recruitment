@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Upload CVs · CV Search{% endblock %}
+{% block content %}
+<h1>Upload CVs</h1>
+<p>Select any number of CVs (PDF, Word .docx/.doc, RTF, TXT) or a <strong>.zip</strong> of a whole folder.
+Duplicates are detected automatically, so it's safe to re-upload a folder.</p>
+<p class="muted">For your full back catalogue (~1,000 files) the command-line importer is faster:
+<code>python import_cvs.py "/path/to/CV folder"</code></p>
+
+<form class="upload" method="post" enctype="multipart/form-data" onsubmit="this.querySelector('button').textContent='Processing… (this can take a few minutes)'; this.querySelector('button').disabled=true;">
+  <input type="file" name="files" multiple accept=".pdf,.docx,.doc,.rtf,.txt,.odt,.zip" required>
+  <button type="submit">Upload &amp; analyse</button>
+</form>
+
+{% if report %}
+<div class="report">
+  <h2>Upload results</h2>
+  <p><strong>{{ report.added|length }}</strong> added ·
+     <strong>{{ report.duplicate|length }}</strong> already in database ·
+     <strong>{{ report.unsupported|length }}</strong> skipped (not CV files) ·
+     <strong>{{ report.error|length }}</strong> failed</p>
+  {% if report.warnings %}
+    <h3>Added, but need a look ({{ report.warnings|length }})</h3>
+    <ul>{% for w in report.warnings %}<li><a href="{{ url_for('candidate', cid=w.id) }}">{{ w.name }}</a> — {{ w.message }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if report.error %}
+    <h3>Failed</h3>
+    <ul>{% for w in report.error %}<li>{{ w.name }} — {{ w.message }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if report.unsupported %}
+    <details><summary>Skipped files</summary>
+    <ul>{% for w in report.unsupported %}<li>{{ w.name }} — {{ w.message }}</li>{% endfor %}</ul></details>
+  {% endif %}
+  <p><a href="{{ url_for('index') }}">Go to search →</a></p>
+</div>
+{% endif %}
+
+<hr>
+<h2>Re-analyse all CVs</h2>
+<p class="muted">If you add keywords, firms or sectors in <code>cvsearch/taxonomy.py</code>, click this to re-tag every CV already stored.</p>
+<form method="post" action="{{ url_for('reparse') }}"><button type="submit" class="secondary">Re-analyse {{ stats.total }} CVs</button></form>
+{% endblock %}
