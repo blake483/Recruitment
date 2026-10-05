@@ -1,6 +1,7 @@
 """Start the CV search app:  python run.py   then open http://127.0.0.1:5000"""
 
 import os
+import threading
 import webbrowser
 
 from cvsearch.app import create_app
@@ -8,8 +9,9 @@ from cvsearch.app import create_app
 if __name__ == "__main__":
     app = create_app()
     port = int(os.environ.get("PORT", 5000))
-    print(f"\n  CV Search running at http://127.0.0.1:{port}  (Ctrl+C to stop)\n")
+    print(f"\n  CV Search running at http://127.0.0.1:{port}  (close this window or press Ctrl+C to stop)\n")
     if not os.environ.get("NO_BROWSER"):
-        webbrowser.open(f"http://127.0.0.1:{port}")
+        # Give the server a moment to start before the browser asks for the page.
+        threading.Timer(1.5, webbrowser.open, [f"http://127.0.0.1:{port}"]).start()
     # 127.0.0.1 = only reachable from this computer. CVs never leave your machine.
     app.run(host="127.0.0.1", port=port, debug=False)

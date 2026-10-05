@@ -35,7 +35,15 @@ Everything runs **on your own computer**. CVs are never sent to any outside serv
 from your own machine (127.0.0.1). CVs and the database live in the `data/` folder, which is excluded from git.
 Deleting a candidate removes their CV file too, which helps with GDPR requests.
 
-## Setup (one time, about 5 minutes)
+## Windows: the easy way
+
+1. Install **Python** from https://www.python.org/downloads/ and tick **"Add python.exe to PATH"** on the installer's first screen.
+2. Download this project as a ZIP from GitHub, right-click the file and choose **Extract All**.
+3. Double-click **`start.bat`**. The first run takes a minute or two to set up, then your browser opens on the app.
+   Keep the black window open while you use the app. Closing it stops the app.
+4. To load your CVs, drag your CV folder onto **`import_cvs.bat`**. You can also use the **Upload CVs** page in the app.
+
+## Setup by hand (Mac, or Windows without the .bat files)
 
 1. Install **Python 3.10 or newer** from https://www.python.org/downloads/ (on Windows, tick *"Add Python to PATH"*).
 2. Download this project, open a terminal (Mac: *Terminal*; Windows: *Command Prompt*) in the project folder, and run:
